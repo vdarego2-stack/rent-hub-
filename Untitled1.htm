@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ---------- GENERAL STYLES ---------- */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #e9f0f7, #ffffff);
+    color: #333;
+}
+
+/* ---------- NAVBAR ---------- */
+.navbar {
+    background-color: #0d6efd;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.navbar button {
+    background: white;
+    color: #0d6efd;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.navbar button:hover {
+    background: #e2e6ea;
+    transform: translateY(-2px);
+}
+
+/* ---------- SECTIONS ---------- */
+section {
+    background: white;
+    margin: 25px auto;
+    padding: 30px 25px;
+    border-radius: 20px;
+    max-width: 900px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+section h2 {
+    margin-top: 0;
+    color: #0d6efd;
+    font-size: 22px;
+}
+
+/* ---------- INPUTS & BUTTONS ---------- */
+input, button, select {
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 8px rgba(13,110,253,0.3);
+    outline: none;
+}
+
+button {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #084298;
+    transform: translateY(-2px);
+}
+
+/* ---------- CURRENT USER ---------- */
+#current_user {
+    font-weight: bold;
+    color: #0d6efd;
+    margin-bottom: 10px;
+}
+
+/* ---------- PRODUCT GRID ---------- */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 20px;
+}
+
+.product-card {
+    border-radius: 20px;
+    overflow: hidden;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.product-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: transform 0.3s;
+}
+
+.product-card img:hover {
+    transform: scale(1.05);
+}
+
+.product-card h3 {
+    margin: 8px 0 5px;
+    font-size: 18px;
+    color: #333;
+}
+
+.product-card p {
+    margin: 4px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.product-card button {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 10px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 600px) {
+    section {
+        margin: 15px 10px;
+        padding: 20px 15px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+<h1>Rental Platform</h1>
+<button onclick="alert('Login / Signup below')">Account <i class="fa fa-user"></i></button>
+</div>
+
+<section>
+<p id="current_user">Not logged in</p>
+</section>
+
+<section>
+<h2>Signup</h2>
+<input type="text" id="signup_name" placeholder="Name">
+<input type="email" id="signup_email" placeholder="Email">
+<input type="password" id="signup_password" placeholder="Password">
+<button onclick="signup()">Signup</button>
+<p id="signup_msg"></p>
+</section>
+
+<section>
+<h2>Login</h2>
+<input type="email" id="login_email" placeholder="Email">
+<input type="password" id="login_password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="login_msg"></p>
+</section>
+
+<section>
+<h2>Add Product</h2>
+<input type="text" id="p_name" placeholder="Product Name">
+<input type="number" id="p_price" placeholder="Price">
+<input type="text" id="p_location" placeholder="Location">
+<input type="file" id="p_image">
+<button onclick="addProduct()">Add Product</button>
+<p id="product_msg"></p>
+</section>
+
+<section>
+<h2>Products</h2>
+<button onclick="loadProducts()">Load Products</button>
+<div id="products" class="products-grid"></div>
+</section>
+
+<script>
+let currentUser = localStorage.getItem("currentUser") || null;
+if(currentUser) document.getElementById('current_user').innerText = "Logged in as User ID: "+currentUser;
+
+async function signup(){
+    try{
+        let name=document.getElementById('signup_name').value;
+        let email=document.getElementById('signup_email').value;
+        let password=document.getElementById('signup_password').value;
+        let res=await fetch("http://127.0.0.1:5000/signup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,email,password})});
+        let data=await res.json();
+        document.getElementById('signup_msg').innerText=data.message;
+    }catch(e){document.getElementById('signup_msg').innerText="Error connecting to server";}
+}
+
+async function login(){
+    try{
+        let email=document.getElementById('login_email').value;
+        let password=document.getElementById('login_password').value;
+        let res=await fetch("http://127.0.0.1:5000/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+        let data=await res.json();
+        document.getElementById('login_msg').innerText=data.message;
+        if(res.ok){
+            currentUser=data.user_id;
+            localStorage.setItem("currentUser", currentUser);
+            document.getElementById('current_user').innerText="Logged in as User ID: "+currentUser;
+        }
+    }catch(e){document.getElementById('login_msg').innerText="Error connecting to server";}
+}
+
+async function addProduct(){
+    if(!currentUser){alert("Please login first!"); return;}
+    let name=document.getElementById("p_name").value;
+    let price=document.getElementById("p_price").value;
+    let location=document.getElementById("p_location").value;
+    let image=document.getElementById("p_image").files[0];
+    let formData=new FormData();
+    formData.append("name",name);
+    formData.append("price",price);
+    formData.append("location",location);
+    formData.append("user_id",currentUser);
+    formData.append("image",image);
+    try{
+        let res=await fetch("http://127.0.0.1:5000/add_product",{method:"POST",body:formData});
+        let data=await res.json();
+        document.getElementById("product_msg").innerText=data.message;
+    }catch(e){document.getElementById("product_msg").innerText="Error adding product";}
+}
+
+async function loadProducts(){
+    try{
+        let res=await fetch("http://127.0.0.1:5000/products");
+        let data=await res.json();
+        let output="";
+        data.forEach(p=>{
+            output+=`<div class="product-card">
+                <img src="http://127.0.0.1:5000/${p.image}" onerror="this.src='https://via.placeholder.com/200'">
+                <h3>${p.name}</h3>
+                <p>Price: ₹${p.price}</p>
+                <p>Location: ${p.location}</p>
+                <p>Owner ID: ${p.owner_id}</p>
+                <button onclick="rentProduct(${p.id})">Rent</button>
+            </div>`;
+        });
+        document.getElementById("products").innerHTML=output;
+    }catch(e){document.getElementById("products").innerHTML="Error loading products";}
+}
+
+async function rentProduct(productId){
+    if(!currentUser){alert("Please login first!"); return;}
+    try{
+        let res=await fetch("http://127.0.0.1:5000/rent",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:currentUser,product_id:productId})});
+        let data=await res.json();
+        alert(data.message);
+    }catch(e){alert("Error renting product");}
+}
+</script>
+</body>
+</html>
