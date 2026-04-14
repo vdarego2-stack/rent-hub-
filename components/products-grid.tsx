@@ -172,36 +172,18 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
                       Owner ID: {product.owner_id}
                     </p>
                   </div>
-                  <div className="space-y-2">
-                    <Button
-                      onClick={() => rentProduct(product.id)}
-                      className="w-full gap-2"
-                      disabled={rentingId === product.id}
-                    >
-                      {rentingId === product.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ShoppingBag className="h-4 w-4" />
-                      )}
-                      Rent Now
-                    </Button>
-                    
-                    {currentUser === String(product.owner_id) && (
-                      <Button
-                        onClick={() => deleteProduct(product.id)}
-                        variant="destructive"
-                        className="w-full gap-2"
-                        disabled={deletingId === product.id}
-                      >
-                        {deletingId === product.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                        Delete Product
-                      </Button>
+                  <Button
+                    onClick={() => rentProduct(product.id)}
+                    className="w-full gap-2"
+                    disabled={rentingId === product.id}
+                  >
+                    {rentingId === product.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <ShoppingBag className="h-4 w-4" />
                     )}
-                  </div>
+                    Rent Now
+                  </Button>
                 </div>
               </div>
             ))}
