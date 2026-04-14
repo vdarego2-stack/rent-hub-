@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package } from "lucide-react";
+import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -22,6 +22,7 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [rentingId, setRentingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   async function loadProducts() {
@@ -35,6 +36,32 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
       setProducts([]);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function deleteProduct(productId: number) {
+    if (!currentUser) {
+      alert("Please login first!");
+      return;
+    }
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    setDeletingId(productId);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/delete_product/${productId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: currentUser }),
+      });
+      const data = await res.json();
+      alert(data.message);
+      if (res.ok) {
+        setProducts(products.filter(p => p.id !== productId));
+      }
+    } catch {
+      alert("Error deleting product");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -145,18 +172,36 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
                       Owner ID: {product.owner_id}
                     </p>
                   </div>
-                  <Button
-                    onClick={() => rentProduct(product.id)}
-                    className="w-full gap-2"
-                    disabled={rentingId === product.id}
-                  >
-                    {rentingId === product.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ShoppingBag className="h-4 w-4" />
+                  <div className="space-y-2">
+                    <Button
+                      onClick={() => rentProduct(product.id)}
+                      className="w-full gap-2"
+                      disabled={rentingId === product.id}
+                    >
+                      {rentingId === product.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ShoppingBag className="h-4 w-4" />
+                      )}
+                      Rent Now
+                    </Button>
+                    
+                    {currentUser === String(product.owner_id) && (
+                      <Button
+                        onClick={() => deleteProduct(product.id)}
+                        variant="destructive"
+                        className="w-full gap-2"
+                        disabled={deletingId === product.id}
+                      >
+                        {deletingId === product.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                        Delete Product
+                      </Button>
                     )}
-                    Rent Now
-                  </Button>
+                  </div>
                 </div>
               </div>
             ))}

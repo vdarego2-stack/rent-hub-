@@ -88,6 +88,24 @@ def add_product():
 
     return jsonify({"message": "Product added successfully"})
 
+# ---------------- DELETE PRODUCT ----------------
+@app.route('/delete_product/<int:product_id>', methods=['DELETE'])
+def delete_product(product_id):
+    global products
+    user_id = request.json.get('user_id') if request.json else None
+    
+    product = next((p for p in products if p['id'] == product_id), None)
+    if not product:
+        return jsonify({"message": "Product not found"}), 404
+        
+    if str(product['owner_id']) != str(user_id):
+        return jsonify({"message": "Unauthorized to delete this product"}), 403
+        
+    products = [p for p in products if p['id'] != product_id]
+    save_json(PRODUCTS_FILE, products)
+    
+    return jsonify({"message": "Product deleted successfully"})
+
 # ---------------- GET PRODUCTS ----------------
 @app.route('/products', methods=['GET'])
 def get_products():
