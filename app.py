@@ -127,6 +127,26 @@ def rent_product():
 def serve_image(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
+# ---------------- ADMIN RESET PRODUCTS ----------------
+@app.route('/admin/reset_products', methods=['POST'])
+def reset_products():
+    try:
+        global products
+        import shutil
+        
+        # Delete all products from the JSON database
+        products = []
+        save_json(PRODUCTS_FILE, products)
+        
+        # Delete all uploaded images in the static folder
+        if os.path.exists(UPLOAD_FOLDER):
+            shutil.rmtree(UPLOAD_FOLDER)
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            
+        return jsonify({"message": "All products and images reset successfully"}), 200
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500
+
 # ---------------- RUN APP ----------------
 if __name__ == '__main__':
     app.run(debug=True)
