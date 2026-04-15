@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package, Trash2 } from "lucide-react";
+import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
@@ -22,13 +23,12 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [rentingId, setRentingId] = useState<number | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   async function loadProducts() {
     setLoading(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+      const res = await fetch(`${API_BASE_URL}/products`);
       const data = await res.json();
       setProducts(data);
       setLoaded(true);
@@ -36,32 +36,6 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
       setProducts([]);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function deleteProduct(productId: number) {
-    if (!currentUser) {
-      alert("Please login first!");
-      return;
-    }
-    if (!confirm("Are you sure you want to delete this product?")) return;
-
-    setDeletingId(productId);
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/delete_product/${productId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: currentUser }),
-      });
-      const data = await res.json();
-      alert(data.message);
-      if (res.ok) {
-        setProducts(products.filter(p => p.id !== productId));
-      }
-    } catch {
-      alert("Error deleting product");
-    } finally {
-      setDeletingId(null);
     }
   }
 
@@ -73,7 +47,7 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
 
     setRentingId(productId);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rent`, {
+      const res = await fetch(`${API_BASE_URL}/rent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: currentUser, product_id: productId }),
@@ -148,7 +122,7 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
               >
                 <div className="relative overflow-hidden">
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}/${product.image}`}
+                    src={`${API_BASE_URL}/${product.image}`}
                     alt={product.name}
                     className="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {

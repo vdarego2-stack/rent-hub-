@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { UserPlus, LogIn, Mail, Lock, User, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +23,7 @@ export function AuthForms({ onLoginSuccess }: AuthFormsProps) {
     setSignupLoading(true);
     setSignupMsg({ text: "", type: "" });
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
+      const res = await fetch(`${API_BASE_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(signupData),
@@ -43,7 +44,7 @@ export function AuthForms({ onLoginSuccess }: AuthFormsProps) {
     setLoginLoading(true);
     setLoginMsg({ text: "", type: "" });
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+      const res = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData),

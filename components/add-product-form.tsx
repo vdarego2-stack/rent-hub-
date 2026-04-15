@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Package, DollarSign, MapPin, ImagePlus, Upload, Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +58,7 @@ export function AddProductForm({ currentUser }: AddProductFormProps) {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/add_product`, {
+      const res = await fetch(`${API_BASE_URL}/add_product`, {
         method: "POST",
         body: formData,
       });
