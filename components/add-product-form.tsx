@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Package, DollarSign, MapPin, ImagePlus, Upload, Loader2, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Package, DollarSign, MapPin, ImagePlus, Upload, Loader2, CheckCircle2, AlertCircle, X, Phone, Mail } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ interface AddProductFormProps {
 
 export function AddProductForm({ currentUser }: AddProductFormProps) {
   const [productData, setProductData] = useState({ name: "", price: "", location: "" });
+  const [contactInfo, setContactInfo] = useState({ phone: "", email: "" });
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [msg, setMsg] = useState({ text: "", type: "" });
@@ -52,6 +53,8 @@ export function AddProductForm({ currentUser }: AddProductFormProps) {
     formData.append("name", productData.name);
     formData.append("price", productData.price);
     formData.append("location", productData.location);
+    formData.append("phone", contactInfo.phone);
+    formData.append("email", contactInfo.email);
     formData.append("user_id", currentUser);
     if (image) {
       formData.append("image", image);
@@ -66,6 +69,7 @@ export function AddProductForm({ currentUser }: AddProductFormProps) {
       setMsg({ text: data.message, type: res.ok ? "success" : "error" });
       if (res.ok) {
         setProductData({ name: "", price: "", location: "" });
+        setContactInfo({ phone: "", email: "" });
         clearImage();
       }
     } catch {
@@ -119,6 +123,38 @@ export function AddProductForm({ currentUser }: AddProductFormProps) {
             value={productData.location}
             onChange={(e) => setProductData({ ...productData, location: e.target.value })}
           />
+        </div>
+
+        {/* Contact Info Section */}
+        <div className="border-t border-border pt-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <div className="p-1 rounded bg-accent/20">
+              <Mail className="h-4 w-4 text-accent-foreground" />
+            </div>
+            Contact Information
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="tel"
+                placeholder="Phone Number"
+                className="pl-10"
+                value={contactInfo.phone}
+                onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+              />
+            </div>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="email"
+                placeholder="Email Address"
+                className="pl-10"
+                value={contactInfo.email}
+                onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Image Upload Area */}
