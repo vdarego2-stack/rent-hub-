@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface AuthFormsProps {
-  onLoginSuccess: (userId: string) => void;
+  onLoginSuccess: (userId: string, email: string) => void;
 }
 
 export function AuthForms({ onLoginSuccess }: AuthFormsProps) {
@@ -53,7 +53,8 @@ export function AuthForms({ onLoginSuccess }: AuthFormsProps) {
       setLoginMsg({ text: data.message, type: res.ok ? "success" : "error" });
       if (res.ok) {
         localStorage.setItem("currentUser", data.user_id);
-        onLoginSuccess(data.user_id);
+        localStorage.setItem("userEmail", loginData.email);
+        onLoginSuccess(data.user_id, loginData.email);
         setLoginData({ email: "", password: "" });
       }
     } catch {

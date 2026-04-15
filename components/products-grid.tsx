@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package, Phone, Mail, X } from "lucide-react";
+import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package, Phone, Mail, X, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,15 +19,21 @@ interface Product {
 
 interface ProductsGridProps {
   currentUser: string | null;
+  userEmail?: string | null;
 }
 
-export function ProductsGrid({ currentUser }: ProductsGridProps) {
+const DEVELOPER_EMAIL = "vishwaksenorg@gmail.com";
+
+export function ProductsGrid({ currentUser, userEmail }: ProductsGridProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [rentingId, setRentingId] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const isDeveloper = userEmail === DEVELOPER_EMAIL;
 
   async function loadProducts() {
     setLoading(true);
@@ -40,6 +46,37 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
       setProducts([]);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function deleteProduct(productId: number) {
+    if (!isDeveloper) {
+      alert("Only developer can delete products!");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to delete this product?")) {
+      return;
+    }
+
+    setDeletingId(productId);
+    try {
+      const res = await fetch(`${API_BASE_URL}/delete_product`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: productId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProducts(products.filter(p => p.id !== productId));
+        alert("Product deleted successfully!");
+      } else {
+        alert(data.message || "Error deleting product");
+      }
+    } catch (error) {
+      alert("Error deleting product");
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -159,18 +196,35 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
                       Owner ID: {product.owner_id}
                     </p>
                   </div>
-                  <Button
-                    onClick={() => rentProduct(product)}
-                    className="w-full gap-2"
-                    disabled={rentingId === product.id}
-                  >
-                    {rentingId === product.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <ShoppingBag className="h-4 w-4" />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => rentProduct(product)}
+                      className="flex-1 gap-2"
+                      disabled={rentingId === product.id}
+                    >
+                      {rentingId === product.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ShoppingBag className="h-4 w-4" />
+                      )}
+                      Rent Now
+                    </Button>
+                    {isDeveloper && (
+                      <Button
+                        onClick={() => deleteProduct(product.id)}
+                        variant="destructive"
+                        size="icon"
+                        disabled={deletingId === product.id}
+                        title="Delete product (Developer only)"
+                      >
+                        {deletingId === product.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
                     )}
-                    Rent Now
-                  </Button>
+                  </div>
                 </div>
               </div>
             ))}

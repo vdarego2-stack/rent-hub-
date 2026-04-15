@@ -9,11 +9,16 @@ import { Sparkles, ArrowRight, Shield, Clock, MapPin } from "lucide-react";
 
 export default function Home() {
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("currentUser");
+    const storedEmail = localStorage.getItem("userEmail");
     if (storedUser) {
       setCurrentUser(storedUser);
+    }
+    if (storedEmail) {
+      setUserEmail(storedEmail);
     }
   }, []);
 
@@ -94,7 +99,10 @@ export default function Home() {
 
         {/* Auth Section */}
         <section id="auth" className="scroll-mt-20">
-          <AuthForms onLoginSuccess={setCurrentUser} />
+          <AuthForms onLoginSuccess={(userId, email) => {
+            setCurrentUser(userId);
+            setUserEmail(email);
+          }} />
         </section>
 
         {/* Add Product Section */}
@@ -104,7 +112,7 @@ export default function Home() {
 
         {/* Products Section */}
         <section id="products" className="scroll-mt-20">
-          <ProductsGrid currentUser={currentUser} />
+          <ProductsGrid currentUser={currentUser} userEmail={userEmail} />
         </section>
       </main>
 
