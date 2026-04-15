@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package } from "lucide-react";
+import { ShoppingBag, MapPin, User, RefreshCw, Loader2, Package, Phone, Mail, X } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,6 +13,8 @@ interface Product {
   location: string;
   owner_id: number;
   image: string;
+  phone?: string;
+  email?: string;
 }
 
 interface ProductsGridProps {
@@ -24,6 +26,8 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
   const [loading, setLoading] = useState(false);
   const [rentingId, setRentingId] = useState<number | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   async function loadProducts() {
     setLoading(true);
@@ -39,21 +43,30 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
     }
   }
 
-  async function rentProduct(productId: number) {
+  async function rentProduct(product: Product) {
     if (!currentUser) {
       alert("Please login first!");
       return;
     }
 
-    setRentingId(productId);
+    setSelectedProduct(product);
+    setShowContactModal(true);
+  }
+
+  async function confirmRent() {
+    if (!selectedProduct) return;
+
+    setRentingId(selectedProduct.id);
     try {
       const res = await fetch(`${API_BASE_URL}/rent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: currentUser, product_id: productId }),
+        body: JSON.stringify({ user_id: currentUser, product_id: selectedProduct.id }),
       });
       const data = await res.json();
       alert(data.message);
+      setShowContactModal(false);
+      setSelectedProduct(null);
     } catch {
       alert("Error renting product");
     } finally {
@@ -147,7 +160,7 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
                     </p>
                   </div>
                   <Button
-                    onClick={() => rentProduct(product.id)}
+                    onClick={() => rentProduct(product)}
                     className="w-full gap-2"
                     disabled={rentingId === product.id}
                   >
@@ -164,6 +177,107 @@ export function ProductsGrid({ currentUser }: ProductsGridProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Contact Modal */}
+      {showContactModal && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>Owner Contact Information</CardTitle>
+                <CardDescription>Product: {selectedProduct.name}</CardDescription>
+              </div>
+              <button
+                onClick={() => {
+                  setShowContactModal(false);
+                  setSelectedProduct(null);
+                }}
+                className="p-1 hover:bg-muted rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Product Details */}
+              <div className="bg-muted p-4 rounded-lg space-y-2">
+                <p className="text-sm font-medium">
+                  <span className="text-muted-foreground">Product:</span> {selectedProduct.name}
+                </p>
+                <p className="text-sm font-medium">
+                  <span className="text-muted-foreground">Price:</span> ₹{selectedProduct.price}
+                </p>
+                <p className="text-sm font-medium">
+                  <span className="text-muted-foreground">Location:</span> {selectedProduct.location}
+                </p>
+                <p className="text-sm font-medium">
+                  <span className="text-muted-foreground">Owner ID:</span> {selectedProduct.owner_id}
+                </p>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-3 border-t border-border pt-4">
+                <h4 className="font-semibold text-sm">Contact Details</h4>
+                
+                {selectedProduct.phone ? (
+                  <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Phone</p>
+                      <p className="font-medium text-foreground">{selectedProduct.phone}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    <Phone className="h-5 w-5 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">No phone provided</p>
+                  </div>
+                )}
+
+                {selectedProduct.email ? (
+                  <div className="flex items-center gap-3 p-3 bg-accent/20 rounded-lg">
+                    <Mail className="h-5 w-5 text-foreground" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Email</p>
+                      <p className="font-medium text-foreground break-all">{selectedProduct.email}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    <Mail className="h-5 w-5 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">No email provided</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-border">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowContactModal(false);
+                    setSelectedProduct(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmRent}
+                  className="flex-1 gap-2"
+                  disabled={rentingId === selectedProduct.id}
+                >
+                  {rentingId === selectedProduct.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <ShoppingBag className="h-4 w-4" />
+                  )}
+                  Confirm Rent
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </Card>
   );
 }
